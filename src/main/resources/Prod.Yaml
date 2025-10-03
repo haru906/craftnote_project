@@ -1,0 +1,13 @@
+db:
+  host: "localhost"
+  port: "3306"
+  users: "root"
+  password: "![wuSnmQG2vnU=]"
+  database: "craftsoft_notes_db"
+  
+http:
+   path: "/api"
+   port: "8081"
+   
+resp:
+   message: "You are now working in the Prod environment."
