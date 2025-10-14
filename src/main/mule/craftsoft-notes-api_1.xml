@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
     <http:listener-config name="craftsoft-notes-api_1-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
-    <apikit:config name="craftsoft-notes-api_1-config" api="resource::5e3869d0-1bc6-4197-87ca-8ba473811381:craftsoft-notes-api_1:1.0.3:raml:zip:craftsoft-notes-api_1.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="craftsoft-notes-api_1-config" api="resource::5e3869d0-1bc6-4197-87ca-8ba473811381:craftsoft-notes-api_1:1.0.6:raml:zip:craftsoft-notes-api_1.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <db:config name="Database_Config" doc:name="Database Config" doc:id="b4b861c3-663c-4dc3-87d2-f11bbab9a7be">
         <db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.users}" password="${secure::db.password}" database="${db.database}" />
     </db:config>
     <global-property doc:name="Global Property" doc:id="324b6441-3542-4b8e-8d3e-2b72b0262faf" name="env" value="Dev" />
-	<configuration-properties doc:name="Configuration properties" doc:id="07680f36-3e98-4954-b706-f4e1f298a71a" file="${env}.yaml" />
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="b424063a-44a5-4c23-a201-0b52b5345111" file="${env}.yaml" key="team" >
-		<secure-properties:encrypt algorithm="Blowfish" />
-	</secure-properties:config>
-	<flow name="craftsoft-notes-api_1-main">
+    <configuration-properties doc:name="Configuration properties" doc:id="07680f36-3e98-4954-b706-f4e1f298a71a" file="${env}.yaml" />
+    <secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="b424063a-44a5-4c23-a201-0b52b5345111" file="${env}.yaml" key="${secure.key}">
+        <secure-properties:encrypt algorithm="Blowfish" />
+    </secure-properties:config>
+    <api-gateway:autodiscovery apiId="20546818" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="2734460d-2a84-4db0-91aa-a141bf7e3710" flowRef="craftsoft-notes-api_1-main" />
+    <file:config name="File_Config" doc:name="File Config" doc:id="749b46fb-f9ca-41d9-b16c-c4a8ce664e2d" />
+    <flow name="craftsoft-notes-api_1-main">
         <http:listener config-ref="craftsoft-notes-api_1-httpListenerConfig" path="${http.path}/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -103,6 +104,19 @@ output application/json
                     </ee:variables>
                 </ee:transform>
             </on-error-propagate>
+            <on-error-continue enableNotifications="true" logException="true" doc:name="HandleDBError" doc:id="72d64d94-083a-4c4c-b5f6-55667ed4c208" type="DB:CONNECTIVITY" when="Handles database connection issues">
+                <ee:transform doc:name="try_again" doc:id="38de0917-66f9-4a6f-a88c-597e47bbada0">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  error: "Database Connection Error. Please try again later.",
+  "type": error.errorType
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </on-error-continue>
         </error-handler>
     </flow>
     <flow name="craftsoft-notes-api_1-console">
@@ -133,45 +147,92 @@ output application/json
         </error-handler>
     </flow>
     <flow name="put:\notes\(noteId):application\json:craftsoft-notes-api_1-config">
-        <set-variable value="#[attributes.uriParams.noteId]" doc:name="Set Variable" doc:id="269dff8f-f4e4-441a-bdc0-a256fd5e816c" variableName="noteId " />
-        <db:update doc:name="Update notes" doc:id="68961387-d6fa-41b4-8e92-b0e6ee9ddd73" config-ref="Database_Config">
+        <set-variable value="#[attributes.uriParams.noteId]" doc:name="noteID" doc:id="269dff8f-f4e4-441a-bdc0-a256fd5e816c" variableName="noteId " />
+        <ee:transform doc:name="Transform Message" doc:id="ae5f4657-2a21-43d8-a6a9-c69dc27a1bcf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  title: payload.title,
+  content: payload.content
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="0858da8e-c133-4dc5-9ef5-96153f9b5dff" variableName="note" />
+		<db:select doc:name="Select" doc:id="2017e0fb-77e7-4ad1-87fb-68273a721b04" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM notes WHERE id = :id
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+		id : vars.noteId
+	
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="2d802f66-dbe9-4186-aaee-181f27c028f5" >
+			<when expression="#[sizeOf(payload) &gt; 0]">
+				<db:update doc:name="Update notes" doc:id="68961387-d6fa-41b4-8e92-b0e6ee9ddd73" config-ref="Database_Config">
             <db:sql><![CDATA[UPDATE notes
 SET title = :title,
     content = :content,
     updated_at = :updated_at
 WHERE id = :id]]></db:sql>
             <db:input-parameters><![CDATA[#[{
-  title: payload.title,
-  content: payload.content,
+  title: vars.note.title,
+  content: vars.note.content,
   updated_at: now() as String {format: "yyyy-MM-dd HH:mm:ss"},
-  id: attributes.uriParams.noteId as Number
+  id: vars.noteId
 }]]]></db:input-parameters>
         </db:update>
-        <ee:transform doc:name="Transform Message" doc:id="d9428844-aab7-4d4e-803c-45a14ed16c02">
+				<ee:transform doc:name="Note_updated" doc:id="d9428844-aab7-4d4e-803c-45a14ed16c02">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  "message": "Note created successfully"
+  "message": "Note updated successfully"
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<logger level="INFO" doc:name="End" doc:id="096ad184-a56f-48f2-a31d-b7083ce5b738" message="#[p('resp.message')]"/>
+			</when>
+			<otherwise >
+				<db:insert doc:name="Insert" doc:id="8e143711-4bac-402a-ad1c-04b914f8bcb2" config-ref="Database_Config">
+					<db:sql ><![CDATA[INSERT INTO notes (title, content, created_at, updated_at)
+VALUES (:TITLE, :CONTENT, :CREATEDAT, :UPDATEDAT)]]></db:sql>
+					<db:input-parameters ><![CDATA[#[{
+  "TITLE": vars.note.title,
+  "CONTENT": vars.note.content,
+  "CREATEDAT": now() as String {format: "yyyy-MM-dd HH:mm:ss"},
+  "UPDATEDAT": now() as String {format: "yyyy-MM-dd HH:mm:ss"}
+}]]]></db:input-parameters>
+				</db:insert>
+				<ee:transform doc:name="Transform Message" doc:id="3932ea9d-36e1-4a27-b4bc-0ad04f56a473" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Note created successfully"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+        <logger level="INFO" doc:name="End" doc:id="096ad184-a56f-48f2-a31d-b7083ce5b738" message="#[p('resp.message')]" />
     </flow>
     <flow name="delete:\notes\(noteId):craftsoft-notes-api_1-config">
-        <set-variable value="#[attributes.uriParams.noteId]" doc:name="Set Variable" doc:id="9ee3055a-436f-4408-b002-5a0f9ca97d4a" variableName="noteId" />
-        <db:delete doc:name="Delete" doc:id="38ec2543-9807-438a-a746-eb97f15dd0ec" config-ref="Database_Config">
+        <set-variable value="#[attributes.uriParams.noteId]" doc:name="noteId" doc:id="9ee3055a-436f-4408-b002-5a0f9ca97d4a" variableName="noteId" />
+        <db:delete doc:name="Delete_note" doc:id="38ec2543-9807-438a-a746-eb97f15dd0ec" config-ref="Database_Config">
             <db:sql><![CDATA[DELETE FROM notes WHERE id = :noteId]]></db:sql>
             <db:input-parameters><![CDATA[#[{
 		"noteId" : vars.noteId
 	
 }]]]></db:input-parameters>
         </db:delete>
-		<logger level="INFO" doc:name="Logger" doc:id="2aef93c1-2a44-437a-8b0b-122cad0c79a8" message="#[payload]"/>
-		<choice doc:name="Choice" doc:id="7a00e0cc-016b-4a9a-bbe9-4964c8a40de1">
+        <logger level="INFO" doc:name="Logger" doc:id="2aef93c1-2a44-437a-8b0b-122cad0c79a8" message="#[payload]" />
+        <choice doc:name="Choice" doc:id="7a00e0cc-016b-4a9a-bbe9-4964c8a40de1">
             <when expression="#[payload &gt; 0]">
-				<ee:transform doc:name="Transform Message" doc:id="c88f117a-aa1e-4db6-a8cd-58523ac94229">
+                <ee:transform doc:name="note_deleted" doc:id="c88f117a-aa1e-4db6-a8cd-58523ac94229">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -182,8 +243,8 @@ output application/json
                     </ee:message>
                 </ee:transform>
             </when>
-			<otherwise>
-				<ee:transform doc:name="Transform Message" doc:id="df5dea03-02a9-415e-bea7-c0de02c731a4">
+            <otherwise>
+                <ee:transform doc:name="not_Found" doc:id="df5dea03-02a9-415e-bea7-c0de02c731a4">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -196,13 +257,13 @@ output application/json
                 </ee:transform>
             </otherwise>
         </choice>
-		<logger level="INFO" doc:name="End" doc:id="cba0a25d-3540-4769-8b71-fbcc73a1b407" message="#[p('resp.message')]"/>
+        <logger level="INFO" doc:name="End" doc:id="cba0a25d-3540-4769-8b71-fbcc73a1b407" message="#[p('resp.message')]" />
     </flow>
     <flow name="get:\notes:craftsoft-notes-api_1-config">
         <db:select doc:name="Select" doc:id="8dbc1a6c-47ee-49eb-8936-cf4d4f907c17" config-ref="Database_Config">
             <db:sql><![CDATA[SELECT * FROM notes;]]></db:sql>
         </db:select>
-        <ee:transform doc:name="Transform Message">
+        <ee:transform doc:name="all_notes">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -210,11 +271,12 @@ output application/json
 payload]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<logger level="INFO" doc:name="End" doc:id="6d4eff25-ac38-415f-b670-b799cef3d271" message="#[p('resp.message')]"/>
+        <file:write doc:name="Write_notes" doc:id="fb8e4104-ea55-45a9-931d-0e9f2758849c" config-ref="File_Config" path="C:\Users\harug\OneDrive\Desktop\Notes\All_notes.json.txt" />
+        <logger level="INFO" doc:name="End" doc:id="6d4eff25-ac38-415f-b670-b799cef3d271" message="#[p('resp.message')]" />
     </flow>
-    <flow name="get:\notes\(noteId):craftsoft-notes-api_1-config">
-        <set-variable value="#[attributes.uriParams.noteId]" doc:name="Set Variable" doc:id="8dfc7343-5211-4f77-838d-8c0b18dc470c" variableName="noteId" />
-        <db:select doc:name="Select" doc:id="e80867cc-23c8-4dc4-9b6b-5c459acfd2d7" config-ref="Database_Config">
+    <flow name="get:\notes\(noteId):craftsoft-notes-api_1-config" doc:id="cbbe3c2b-052a-4104-a08c-2d15a1af46d2">
+        <set-variable value="#[attributes.uriParams.noteId]" doc:name="noteId" doc:id="8dfc7343-5211-4f77-838d-8c0b18dc470c" variableName="noteId" />
+        <db:select doc:name="retrive_byID" doc:id="e80867cc-23c8-4dc4-9b6b-5c459acfd2d7" config-ref="Database_Config">
             <db:sql><![CDATA[SELECT * FROM notes where id= :noteId;]]></db:sql>
             <db:input-parameters><![CDATA[#[{
 		noteId : vars.noteId
@@ -223,7 +285,7 @@ payload]]></ee:set-payload>
         </db:select>
         <choice doc:name="Choice" doc:id="d9e405a0-6f14-487f-9c6b-e44ce788ce0e">
             <when expression="#[!isEmpty(payload)]">
-                <ee:transform doc:name="Transform Message" doc:id="8de0758c-127a-49a9-bcaa-60ec54372251">
+                <ee:transform doc:name="note_byID" doc:id="8de0758c-127a-49a9-bcaa-60ec54372251">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -233,7 +295,7 @@ payload[0]]]></ee:set-payload>
                 </ee:transform>
             </when>
             <otherwise>
-                <ee:transform doc:name="Transform Message" doc:id="ab80d56f-e03f-4b65-b9db-95dc5ff241c8">
+                <ee:transform doc:name="note_found" doc:id="ab80d56f-e03f-4b65-b9db-95dc5ff241c8">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -245,10 +307,11 @@ output application/json
                 </ee:transform>
             </otherwise>
         </choice>
-		<logger level="INFO" doc:name="End" doc:id="adbaa479-80a0-4096-80c8-90b78a5c8d84" message="#[p('resp.message')]"/>
+        <file:write doc:name="Write_note" doc:id="33f17f54-345e-4927-8022-4042fc105c82" path="C:\Users\harug\OneDrive\Desktop\Notes\Note_byID.json.txt" />
+        <logger level="INFO" doc:name="End" doc:id="adbaa479-80a0-4096-80c8-90b78a5c8d84" message="#[p('resp.message')]" />
     </flow>
     <flow name="post:\notes:application\json:craftsoft-notes-api_1-config">
-        <db:insert doc:name="Insert" doc:id="96efe495-3cd5-4ccd-a2fa-039ebd644cee" config-ref="Database_Config">
+        <db:insert doc:name="create_note" doc:id="96efe495-3cd5-4ccd-a2fa-039ebd644cee" config-ref="Database_Config">
             <db:sql><![CDATA[INSERT INTO notes (title, content, created_at, updated_at)
 VALUES (:TITLE, :CONTENT, :CREATEDAT, :UPDATEDAT)]]></db:sql>
             <db:input-parameters><![CDATA[#[{
@@ -258,7 +321,7 @@ VALUES (:TITLE, :CONTENT, :CREATEDAT, :UPDATEDAT)]]></db:sql>
   "UPDATEDAT": now() as String {format: "yyyy-MM-dd HH:mm:ss"}
 }]]]></db:input-parameters>
         </db:insert>
-        <ee:transform doc:name="Transform Message" doc:id="28269997-bd83-450f-997f-d539e1d3d45f">
+        <ee:transform doc:name="note_created" doc:id="28269997-bd83-450f-997f-d539e1d3d45f">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -268,6 +331,6 @@ output application/json
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
-		<logger level="INFO" doc:name="End " doc:id="61ae782e-48f5-4f1a-b1b6-bb16ad28fdda" message="#[p('resp.message')]"/>
+        <logger level="INFO" doc:name="End " doc:id="61ae782e-48f5-4f1a-b1b6-bb16ad28fdda" message="#[p('resp.message')]" />
     </flow>
 </mule>
